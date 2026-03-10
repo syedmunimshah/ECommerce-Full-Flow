@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -24,6 +24,8 @@ namespace Repository.Entities
         public int? UpdateBy { get; set; }
 
         public SellerProfile? SellerProfile { get; set; }
+        public Cart? Cart { get; set; }
         public ICollection<Order> Orders { get; set; }
+        public ICollection<Review> Reviews { get; set; }
     }
 }

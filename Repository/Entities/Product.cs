@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Repository.Entities
 {
@@ -7,7 +7,9 @@ namespace Repository.Entities
         public int Id { get; set; }
         public int SellerId { get; set; }
         public SellerProfile Seller { get; set; }
-        public string Name { get; set; } 
+        public int? CategoryId { get; set; }
+        public Category? Category { get; set; }
+        public string Name { get; set; }
         public string? Description { get; set; }
         [Column(TypeName = "decimal(18,2)")]
         public decimal Price { get; set; }
@@ -19,5 +21,6 @@ namespace Repository.Entities
         public DateTime? UpdateDate { get; set; }
         public int? UpdateBy { get; set; }
         public ICollection<OrderItem> OrderItems { get; set; }
+        public ICollection<Review> Reviews { get; set; }
     }
 }
