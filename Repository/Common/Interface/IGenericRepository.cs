@@ -20,5 +20,7 @@ namespace Repository.Common.Interface
         void Delete(T entity);
         Task SaveChangesAsync();
         Task<PagedResponse<T>> GetPagedAsync(PagedRequest request);
+        Task<PagedResponse<T>> GetPagedAsync(PagedRequest request,Expression<Func<T, bool>> filter);
+
     }
 }

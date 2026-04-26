@@ -1,48 +1,49 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repository.Common.Dto;
 using Service.DTO;
 using Service.Interfaces;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace ECommerce.Controllers
 {
-    [Route("api/[controller]/[action]")]
+    [Route("api/[controller]")]
     [ApiController]
-    public class ProductController : ControllerBase
+    [Authorize(Roles = "Admin")]
+    public class RoleController : ControllerBase
     {
-        private readonly IProductService _productService;
+        private readonly IRoleService _roleService;
 
-        public ProductController(IProductService productService)
+        public RoleController(IRoleService roleService)
         {
-            _productService = productService;
+            _roleService = roleService;
         }
 
-        [Authorize(Roles = "Seller")]
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateProductDto dto)
+        public async Task<IActionResult> Create([FromBody] CreateRoleDto dto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var result = await _productService.CreateProductAsync(userId, dto);
+            var adminId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var result = await _roleService.CreateAsync(dto, adminId);
             return Ok(result);
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] PagedRequest request)
         {
-            var result = await _productService.GetPagedAsync(request);
+            var result = await _roleService.GetPagedAsync(request);
             return Ok(result);
         }
 
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var result = await _productService.GetByIdAsync(id);
+            var result = await _roleService.GetByIdAsync(id);
             if (result == null)
             {
                 return NotFound();
@@ -50,32 +51,30 @@ namespace ECommerce.Controllers
             return Ok(result);
         }
 
-        [Authorize(Roles = "Seller")]
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> Update(int id, [FromBody] UpdateProductDto dto)
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateRoleDto dto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var result = await _productService.UpdateProductAsync(userId, id, dto);
+            var adminId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var result = await _roleService.UpdateAsync(id, dto, adminId);
             if (result == null)
             {
                 return NotFound();
             }
-
             return Ok(result);
         }
 
-        [Authorize(Roles = "Seller")]
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            await _productService.DeleteProductAsync(userId, id);
+            var adminId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            await _roleService.DeleteAsync(id, adminId);
             return NoContent();
         }
     }
 }
+

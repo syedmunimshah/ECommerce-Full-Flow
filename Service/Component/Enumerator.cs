@@ -14,9 +14,11 @@ namespace Service.Component
         Seller = 3
     }
 
-    //public enum OrderStatus
-    //{
-    //    Pending = 1,
-    //    Delivered = 2
-    //}
+    public enum SellerStatus
+    {
+
+        Pending = 0,
+        Approved = 1,
+        Rejected = 2
+    }
 }

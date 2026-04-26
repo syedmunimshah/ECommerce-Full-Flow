@@ -77,5 +77,19 @@ namespace Repository.Common.Implementation
           
 
         }
+
+        public async Task<PagedResponse<T>> GetPagedAsync(PagedRequest request, Expression<Func<T, bool>> filter)
+        {
+            var query = _dbSet.Where(filter);
+            var totalRecords = await query.CountAsync();
+            var data = await query.Skip((request.PageNumber - 1) * request.PageSize).Take(request.PageSize).ToListAsync();
+            return new PagedResponse<T>
+            {
+                PageNumber = request.PageNumber,
+                PageSize = request.PageSize,
+                TotalRecords = totalRecords,
+                Data = data
+            };
+        }
     }
 }
