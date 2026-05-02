@@ -5,6 +5,7 @@ using Repository.Common.Dto;
 using Repository.Common.Interface;
 using Repository.Entities;
 using Service.Common.Mapper;
+using Service.Component;
 using Service.DTO;
 using Service.Interfaces;
 
@@ -77,7 +78,7 @@ namespace Service.Implementations
 
             foreach (var ci in cartItems)
             {
-                var product = products.First(p => p.Id == ci.ProductId);
+                var product = products.FirstOrDefault(p => p.Id == ci.ProductId);
                 var orderItem = new OrderItem
                 {
                     OrderId = order.Id,
@@ -113,25 +114,25 @@ namespace Service.Implementations
             };
         }
 
-        //public async Task<PagedResponse<OrderDto>> GetOrdersForSellerAsync(int sellerUserId, PagedRequest request)
-        //{
-        //    var seller = await _sellerProfileRepo.FirstOrDefaultAsync(s => s.UserId == sellerUserId && s.IsApproved && s.IsActive);
-        //    if (seller == null)
-        //    {
-        //        throw new InvalidOperationException("Seller profile not approved.");
-        //    }
+        public async Task<PagedResponse<OrderDto>> GetOrdersForSellerAsync(int sellerUserId, PagedRequest request)
+        {
+            var seller = await _sellerProfileRepo.FirstOrDefaultAsync(s => s.UserId == sellerUserId && s.Status==Convert.ToInt32(SellerStatus.Approved) && s.IsActive);
+            if (seller == null)
+            {
+                throw new InvalidOperationException("Seller profile not approved.");
+            }
 
-        //    var paged = await _orderRepo.GetPagedAsync(request);
-        //    var orders = paged.Data.Where(o => o.OrderItems.Any(oi => oi.Product.SellerId == seller.Id)).ToList();
-        //    var dtoData = await ProjectOrdersAsync(orders);
-        //    return new PagedResponse<OrderDto>
-        //    {
-        //        PageNumber = request.PageNumber,
-        //        PageSize = request.PageSize,
-        //        TotalRecords = dtoData.Count,
-        //        Data = dtoData
-        //    };
-        //}
+            var paged = await _orderRepo.GetPagedAsync(request);
+            var orders = paged.Data.Where(o => o.OrderItems.Any(oi => oi.Product.SellerId == seller.Id)).ToList();
+            var dtoData = await ProjectOrdersAsync(orders);
+            return new PagedResponse<OrderDto>
+            {
+                PageNumber = request.PageNumber,
+                PageSize = request.PageSize,
+                TotalRecords = dtoData.Count,
+                Data = dtoData
+            };
+        }
 
         public async Task<PagedResponse<OrderDto>> GetAllOrdersAsync(PagedRequest request)
         {
@@ -146,30 +147,30 @@ namespace Service.Implementations
             };
         }
 
-        //public async Task<OrderDto?> GetByIdAsync(int id, int requestingUserId, string role)
-        //{
-        //    var order = await _orderRepo.GetByIdAsync(id);
-        //    if (order == null)
-        //    {
-        //        return null;
-        //    }
+        public async Task<OrderDto?> GetByIdAsync(int id, int requestingUserId, string role)
+        {
+            var order = await _orderRepo.GetByIdAsync(id);
+            if (order == null)
+            {
+                return null;
+            }
 
-        //    if (string.Equals(role, "User", StringComparison.OrdinalIgnoreCase) && order.UserId != requestingUserId)
-        //    {
-        //        return null;
-        //    }
+            if (string.Equals(role, "User", StringComparison.OrdinalIgnoreCase) && order.UserId != requestingUserId)
+            {
+                return null;
+            }
 
-        //    if (string.Equals(role, "Seller", StringComparison.OrdinalIgnoreCase))
-        //    {
-        //        var seller = await _sellerProfileRepo.FirstOrDefaultAsync(s => s.UserId == requestingUserId && s.IsApproved && s.IsActive);
-        //        if (seller == null || !order.OrderItems.Any(oi => oi.Product.SellerId == seller.Id))
-        //        {
-        //            return null;
-        //        }
-        //    }
+            if (string.Equals(role, "Seller", StringComparison.OrdinalIgnoreCase))
+            {
+                var seller = await _sellerProfileRepo.FirstOrDefaultAsync(s => s.UserId == requestingUserId && s.Status == Convert.ToInt32(SellerStatus.Approved) && s.IsActive);
+                if (seller == null || !order.OrderItems.Any(oi => oi.Product.SellerId == seller.Id))
+                {
+                    return null;
+                }
+            }
 
-        //    return await ProjectOrderAsync(order);
-        //}
+            return await ProjectOrderAsync(order);
+        }
 
         private async Task<OrderDto> ProjectOrderAsync(Order order)
         {
@@ -193,9 +194,9 @@ namespace Service.Implementations
             };
         }
 
-        private async Task<System.Collections.Generic.List<OrderDto>> ProjectOrdersAsync(System.Collections.Generic.List<Order> orders)
+        private async Task<List<OrderDto>> ProjectOrdersAsync(List<Order> orders)
         {
-            var result = new System.Collections.Generic.List<OrderDto>();
+            var result = new List<OrderDto>();
             foreach (var o in orders)
             {
                 result.Add(await ProjectOrderAsync(o));

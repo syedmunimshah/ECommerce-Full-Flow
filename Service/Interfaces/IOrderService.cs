@@ -8,9 +8,9 @@ namespace Service.Interfaces
     {
         Task<OrderDto> CreateOrderFromCartAsync(int userId);
         Task<PagedResponse<OrderDto>> GetOrdersForUserAsync(int userId, PagedRequest request);
-        //Task<PagedResponse<OrderDto>> GetOrdersForSellerAsync(int sellerUserId, PagedRequest request);
+        Task<PagedResponse<OrderDto>> GetOrdersForSellerAsync(int sellerUserId, PagedRequest request);
         Task<PagedResponse<OrderDto>> GetAllOrdersAsync(PagedRequest request);
-        //Task<OrderDto?> GetByIdAsync(int id, int requestingUserId, string role);
+        Task<OrderDto?> GetByIdAsync(int id, int requestingUserId, string role);
     }
 }
 
